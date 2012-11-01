@@ -1,0 +1,15 @@
+Apache Ant project template with groovy property de-obfuscation.
+
+Simply uses a groovy Ant task to de-obfuscate tagged (obfuscated) properties- it just base64 decodes Ant properties prefixed with 'enc:', when the build script is loaded (Just make sure properties are declared/loaded prior to the groovy property preprocessor task).
+
+"Base64?!?  WTF?!? That's not secure!"
+I just need my shizz obfuscated, not encrypted (You could just as easily call the proper crypto API from the groovy task).
+
+"There's already a custom Ant task that does this!"
+I didn't find it.  Besides, groovy gives me an entire language in Ant; If I'm going to add external dependencies to my projects, this can do a stack more.
+
+"Your groovy sucks- you could do it in one line with..."
+Maybe- But I've never written any groovy prior to this... And, I prefer to write code that I can hand off, and never have to be called upon to explain/maintain.
+
+"Dude, Ant is so, like 2002..."
+Sometimes, in the real world, you don't get a choice- You just try to win with what you have.  :)

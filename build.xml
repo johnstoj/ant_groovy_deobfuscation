@@ -1,0 +1,73 @@
+<project name="template" default="test">
+	<path id="project.classpath">
+		<fileset dir="lib">
+			<include name="*.jar" />
+		</fileset>		
+	</path>
+	
+	<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="project.classpath"/>
+	
+	<!-- Macros. ########################################################## -->
+	<macrodef name="verify-file-exists">
+		<attribute name="file" />
+		<attribute name="fail.message" />
+		<sequential>
+			<fail message="@{fail.message}">
+				<condition>
+					<not>
+						<resourceexists>
+							<file file="@{file}" />
+						</resourceexists>
+					</not>
+				</condition>
+			</fail>
+		</sequential>
+	</macrodef>
+
+	<!-- Properties. ###################################################### -->
+	<condition property="target.environment" value="local">
+		<not>
+			<isset property="target.environment" />
+		</not>
+	</condition>
+	
+	<property name="output.dir" value="output" />
+
+	
+	<!-- Entrypoint. ###################################################### -->
+	<verify-file-exists file="${target.environment}.properties" fail.message="Target environment property file (${target.environment}.properties) not found!"/>
+	<property file="${target.environment}.properties" />
+	<groovy>
+		println "Preprocessing " + properties['target.environment']+ ".properties..."
+		
+		// Deobfuscate any obfuscated properties (i.e. passwords)...
+		properties.each { property ->
+			if (property.value.startsWith('enc:')) {
+				println " Decoding " + property.key
+				properties[property.key] = new String(property.value.replace('enc:', '').decodeBase64())
+			}
+		}
+		
+		println "Done."
+	</groovy>
+
+	<!-- Targets. ######################################################### -->
+	<target name="clean">
+		<echo message="Cleaning..." />
+		<delete dir="${output.dir}" />
+	</target>
+	
+	<target name="build" depends="clean">
+		<echo message="Building ${target.environment}..." />
+		<mkdir dir="${output.dir}" />
+	</target>
+	
+	<target name="deploy" depends="build">
+		<echo message="Deploying ${target.environment}..." />
+	</target>
+
+	<target name="test" depends="deploy">
+		<echo message="Testing ${target.environment}..." />
+	</target>
+	
+</project>
